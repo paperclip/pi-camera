@@ -33,9 +33,13 @@ while True:
     if len(recentPhotos) % 10 == 0:
         convert(100,"Last100.gif")
 
+    if len(recentPhotos) % 100 == 0:
+        convert(1000,"Last1000.gif")
+
     end = time.time()
     duration = end - start
-    sleeptime = 60 - duration
+    sleeptime = 120 - duration
+    sleeptime = max(0,sleeptime)
     print("Sleeping for %d seconds"%sleeptime)
     time.sleep(sleeptime)
     
