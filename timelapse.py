@@ -9,20 +9,31 @@ camera = PiCamera(resolution=(1280,720))
 #camera.iso= 800
 
 dest = sys.argv[1]
-recentPhotos = []
+
+photos = os.listdir(dest)
+recentPhotos = [ os.path.join(dest,p) for p in photos if p.startswith("timelapse-") ]
+recentPhotos.sort()
 
 def convert(count, destbase):
+    tempdest = os.path.join(dest,"temp.gif")
+    finaldest = os.path.join(dest, destbase)
     command = ["convert","-delay","10","-loop","0"
         ]+recentPhotos[-count:]+[
-        os.path.join(dest,destbase)]
+        tempdest]
 
-    print("Convert: %s"%(" ".join(command)))
+    print("Convert: %s %s"%(" ".join(command),destbase))
     subprocess.call(command)
-    
+    try:
+        os.unlink(finaldest)
+    except EnvironmentError:
+        pass
+    os.rename(
+        tempdest,
+        finaldest)
 
 while True:
     start = time.time()
-    destname = time.strftime("image-%Y-%m-%d-%H-%M-%S.jpeg")
+    destname = time.strftime("timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
     print("Taking %s"%destname)
     d = os.path.join(dest,destname)
     camera.capture(d)
