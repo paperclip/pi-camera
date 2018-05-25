@@ -5,7 +5,7 @@ import sys
 import subprocess
 import os
 
-camera = PiCamera(resolution=(1280,720))
+camera = PiCamera(resolution=(640,480))
 #camera.iso= 800
 
 dest = sys.argv[1]
@@ -17,7 +17,7 @@ recentPhotos.sort()
 def convert(count, destbase):
     tempdest = os.path.join(dest,"temp.gif")
     finaldest = os.path.join(dest, destbase)
-    command = ["convert","-delay","10","-loop","0"
+    command = ["convert","-delay","30","-loop","0"
         ]+recentPhotos[-count:]+[
         tempdest]
 
@@ -39,17 +39,18 @@ while True:
     camera.capture(d)
     recentPhotos.append(d)
 
-    convert(10,"Last10.gif")
+    if len(recentPhotos) % 3 == 0:
+        convert(10,"Last10.gif")
 
-    if len(recentPhotos) % 10 == 0:
+    if len(recentPhotos) % 20 == 0:
         convert(100,"Last100.gif")
 
-    if len(recentPhotos) % 100 == 0:
+    if len(recentPhotos) % 200 == 0:
         convert(1000,"Last1000.gif")
 
     end = time.time()
     duration = end - start
-    sleeptime = 120 - duration
+    sleeptime = 300 - duration
     sleeptime = max(0,sleeptime)
     print("Sleeping for %d seconds"%sleeptime)
     time.sleep(sleeptime)
