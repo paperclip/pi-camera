@@ -35,6 +35,11 @@ while True:
 
     if len(recentPhotos) % 100 == 0:
         convert(1000,"Last1000.gif")
+        
+    ## Tidy temp files
+    
+    ## Tidy timelapse files
+    
 
     end = time.time()
     duration = end - start
