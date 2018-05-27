@@ -31,6 +31,24 @@ def convert(count, destbase):
         tempdest,
         finaldest)
 
+def cleanUpTimelapseFiles():
+    global recentPhotos
+    if len(recentPhotos) > 1500:
+        print("Deleting 100 oldest photos")
+        ## delete first 100 photos
+        earlyPhotos = recentPhotos[:100]
+        recentPhotos = recentPhotos[100:]
+        for photo in earlyPhotos:
+            try:
+                os.unlink(photo)
+                print("Deleted %s"%photo)
+            except EnvironmentError:
+                pass
+
+
+def cleanUpTempFiles():
+    pass
+
 while True:
     start = time.time()
     destname = time.strftime("timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
@@ -47,11 +65,13 @@ while True:
 
     if len(recentPhotos) % 200 == 0:
         convert(1000,"Last1000.gif")
-        
+
     ## Tidy temp files
-    
+    cleanUpTempFiles()
+
     ## Tidy timelapse files
-    
+    cleanUpTimelapseFiles()
+
 
     end = time.time()
     duration = end - start
@@ -59,4 +79,4 @@ while True:
     sleeptime = max(0,sleeptime)
     print("Sleeping for %d seconds"%sleeptime)
     time.sleep(sleeptime)
-    
+
