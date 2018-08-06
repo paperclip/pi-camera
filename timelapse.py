@@ -17,7 +17,7 @@ recentPhotos.sort()
 def convert(count, destbase):
     tempdest = os.path.join(dest,"temp.gif")
     finaldest = os.path.join(dest, destbase)
-    command = ["convert","-delay","30","-loop","0"
+    command = ["nice","convert","-delay","30","-loop","0"
         ]+recentPhotos[-count:]+[
         tempdest]
 
