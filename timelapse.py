@@ -49,6 +49,8 @@ def cleanUpTimelapseFiles():
 def cleanUpTempFiles():
     pass
 
+count = 0
+
 while True:
     start = time.time()
     destname = time.strftime("timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
@@ -63,7 +65,8 @@ while True:
     if len(recentPhotos) % 20 == 0:
         convert(100,"Last100.gif")
 
-    if len(recentPhotos) % 200 == 0:
+	## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
+    if count % 200 == 0:
         convert(1000,"Last1000.gif")
 
     ## Tidy temp files
@@ -79,4 +82,5 @@ while True:
     sleeptime = max(0,sleeptime)
     print("Sleeping for %d seconds"%sleeptime)
     time.sleep(sleeptime)
+    count += 1
 
