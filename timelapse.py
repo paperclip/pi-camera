@@ -75,6 +75,8 @@ while True:
 	## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
     if count % 200 == 0:
         convert(500,"Last500.gif")
+    else:
+		print(count % 200)
 
     ## Tidy temp files
     cleanUpTempFiles()
