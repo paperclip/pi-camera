@@ -61,29 +61,28 @@ while True:
     ## Throw away the picture if smaller than 50KiB - it'll be all black
     statbuf = os.stat(d)
     if statbuf.st_size < 50*1024:
+		print("Picture too small - night time")
 		os.unlink(d)
-		continue
-    
-    recentPhotos.append(d)
+	else:    
+		recentPhotos.append(d)
 
-    if len(recentPhotos) % 3 == 0:
-        convert(10,"Last10.gif")
+		if len(recentPhotos) % 3 == 0:
+			convert(10,"Last10.gif")
 
-    if len(recentPhotos) % 20 == 0:
-        convert(100,"Last100.gif")
+		if len(recentPhotos) % 20 == 0:
+			convert(100,"Last100.gif")
 
-	## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
-    if count % 200 == 0:
-        convert(500,"Last500.gif")
-    else:
-		print(count % 200)
+		## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
+		if count % 200 == 0:
+			convert(500,"Last500.gif")
+		else:
+			print(count % 200)
 
-    ## Tidy temp files
-    cleanUpTempFiles()
+		## Tidy temp files
+		cleanUpTempFiles()
 
-    ## Tidy timelapse files
-    cleanUpTimelapseFiles()
-
+		## Tidy timelapse files
+		cleanUpTimelapseFiles()
 
     end = time.time()
     duration = end - start
