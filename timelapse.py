@@ -57,6 +57,13 @@ while True:
     print("Taking %s"%destname)
     d = os.path.join(dest,destname)
     camera.capture(d)
+    
+    ## Throw away the picture if smaller than 50KiB - it'll be all black
+    statbuf = os.stat(d)
+    if statbuf.st_size < 50*1024:
+		os.unlink(d)
+		continue
+    
     recentPhotos.append(d)
 
     if len(recentPhotos) % 3 == 0:
@@ -67,7 +74,7 @@ while True:
 
 	## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
     if count % 200 == 0:
-        convert(1000,"Last1000.gif")
+        convert(500,"Last500.gif")
 
     ## Tidy temp files
     cleanUpTempFiles()
