@@ -86,6 +86,8 @@ def oneLoop(camera):
 
         ## Tidy timelapse files
         cleanUpTimelapseFiles()
+        
+        count += 1
 
     
 def main():
@@ -100,7 +102,6 @@ def main():
             sleeptime = max(0,sleeptime)
             print("Sleeping for %d seconds"%sleeptime)
             time.sleep(sleeptime)
-            count += 1
             
     return 0
 
