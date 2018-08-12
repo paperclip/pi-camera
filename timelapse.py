@@ -5,7 +5,7 @@ import sys
 import subprocess
 import os
 import datetime
-import PiCamera
+import picamera
 
 dest = sys.argv[1]
 
