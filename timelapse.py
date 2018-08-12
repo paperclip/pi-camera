@@ -4,9 +4,8 @@ import time
 import sys
 import subprocess
 import os
-
-camera = PiCamera(resolution=(640,480))
-#camera.iso= 800
+import datetime
+import PiCamera
 
 dest = sys.argv[1]
 
@@ -51,8 +50,12 @@ def cleanUpTempFiles():
 
 count = 0
 
-while True:
-    start = time.time()
+def oneLoop(camera):
+    global count
+    global recentPhotos
+    camera.annotate_background = picamera.Color('black')
+    camera.annotate_text = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
     destname = time.strftime("timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
     print("Taking %s"%destname)
     d = os.path.join(dest,destname)
@@ -84,11 +87,21 @@ while True:
         ## Tidy timelapse files
         cleanUpTimelapseFiles()
 
-    end = time.time()
-    duration = end - start
-    sleeptime = 300 - duration
-    sleeptime = max(0,sleeptime)
-    print("Sleeping for %d seconds"%sleeptime)
-    time.sleep(sleeptime)
-    count += 1
+    
+def main():
+    with picamera.PiCamera(resolution=(640,480)) as camera:
+        #camera.iso= 800
+        while True:
+            start = time.time()
+            oneLoop(camera)
+            end = time.time()
+            duration = end - start
+            sleeptime = 300 - duration
+            sleeptime = max(0,sleeptime)
+            print("Sleeping for %d seconds"%sleeptime)
+            time.sleep(sleeptime)
+            count += 1
+            
+    return 0
 
+sys.exit(main())
