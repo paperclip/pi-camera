@@ -63,7 +63,7 @@ def oneLoop(camera):
     
     ## Throw away the picture if smaller than 50KiB - it'll be all black
     statbuf = os.stat(d)
-    if statbuf.st_size < 50*1024:
+    if statbuf.st_size < 60*1024:
         print("Picture too small - night time")
         os.unlink(d)
     else:    
