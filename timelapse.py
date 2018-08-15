@@ -49,6 +49,7 @@ def cleanUpTempFiles():
     pass
 
 count = 0
+TIME_LAPSE_GIFS=False
 
 def oneLoop(camera):
     global count
@@ -69,17 +70,18 @@ def oneLoop(camera):
     else:    
         recentPhotos.append(d)
 
-        if len(recentPhotos) % 3 == 0:
-            convert(10,"Last10.gif")
+        if TIME_LAPSE_GIFS:
+            if len(recentPhotos) % 3 == 0:
+                convert(10,"Last10.gif")
 
-        if len(recentPhotos) % 20 == 0:
-            convert(100,"Last100.gif")
+            if len(recentPhotos) % 20 == 0:
+                convert(100,"Last100.gif")
 
-        ## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
-        if count % 200 == 190:
-            convert(500,"Last500.gif")
-        else:
-            print(count % 200)
+            ## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
+            if count % 200 == 190:
+                convert(500,"Last500.gif")
+            else:
+                print(count % 200)
 
         ## Tidy temp files
         cleanUpTempFiles()
@@ -89,6 +91,7 @@ def oneLoop(camera):
         
         count += 1
 
+MAX_SLEEP_TIME = 60
     
 def main():
     with picamera.PiCamera(resolution=(640,480)) as camera:
@@ -98,7 +101,7 @@ def main():
             oneLoop(camera)
             end = time.time()
             duration = end - start
-            sleeptime = 300 - duration
+            sleeptime = MAX_SLEEP_TIME - duration
             sleeptime = max(0,sleeptime)
             print("Sleeping for %d seconds"%sleeptime)
             time.sleep(sleeptime)
