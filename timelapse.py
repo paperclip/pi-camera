@@ -32,7 +32,7 @@ def convert(count, destbase):
 
 def cleanUpTimelapseFiles():
     global recentPhotos
-    if len(recentPhotos) > 1500:
+    if len(recentPhotos) > 3000:
         print("Deleting 100 oldest photos")
         ## delete first 100 photos
         earlyPhotos = recentPhotos[:100]
@@ -62,9 +62,9 @@ def oneLoop(camera):
     d = os.path.join(dest,destname)
     camera.capture(d)
     
-    ## Throw away the picture if smaller than 50KiB - it'll be all black
+    ## Throw away the picture if smaller than 70KiB - it'll be all black
     statbuf = os.stat(d)
-    if statbuf.st_size < 60*1024:
+    if statbuf.st_size < 70*1024:
         print("Picture too small - night time")
         os.unlink(d)
     else:    
@@ -91,7 +91,7 @@ def oneLoop(camera):
         
         count += 1
 
-MAX_SLEEP_TIME = 60
+MAX_SLEEP_TIME = 120
     
 def main():
     with picamera.PiCamera(resolution=(640,480)) as camera:
