@@ -5,9 +5,9 @@ import tflearn
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
+import os
 
-
-class ImageClassify:
+class ImageClassify(object):
 
     def __init__(self, class_names, image_size=100, learning_rate=0.001, test_split=0.1):
         self.model = None
@@ -20,7 +20,8 @@ class ImageClassify:
 
     def _extract_label(self, image_name):
         zeros = [0 for i in range(len(self.classes))]
-        label_name = image_name.split('.')[0]
+        label_name = os.path.basename(os.path.dirname(image_name))
+        #~ label_name = image_name.split('.')[0]
         index = self.classes.index(label_name.lower())
         zeros[index] = 1
         return zeros
