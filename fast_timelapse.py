@@ -18,7 +18,7 @@ def oneLoop(camera):
     d = os.path.join(dest,destname)
     camera.capture(d)
 
-MAX_SLEEP_TIME = 10
+MAX_SLEEP_TIME = 10.0
 # RESOLUTION=(640,480)
 RESOLUTION=(1920,1080)
 
@@ -33,7 +33,7 @@ def main():
             duration = end - start
             sleeptime = MAX_SLEEP_TIME - duration
             sleeptime = max(0,sleeptime)
-            print("Sleeping for %d seconds"%sleeptime)
+            print("Sleeping for %f seconds"%sleeptime)
             time.sleep(sleeptime)
 
     return 0
