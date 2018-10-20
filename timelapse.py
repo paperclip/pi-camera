@@ -7,6 +7,8 @@ import os
 import datetime
 import picamera
 
+MAX_PHOTOS = 10000
+
 dest = sys.argv[1]
 
 photos = os.listdir(dest)
@@ -32,7 +34,8 @@ def convert(count, destbase):
 
 def cleanUpTimelapseFiles():
     global recentPhotos
-    if len(recentPhotos) > 3000:
+    global MAX_PHOTOS
+    if len(recentPhotos) > MAX_PHOTOS:
         print("Deleting 100 oldest photos")
         ## delete first 100 photos
         earlyPhotos = recentPhotos[:100]
