@@ -12,6 +12,7 @@ import os
 import re
 import smtplib
 from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
 
@@ -45,7 +46,8 @@ def sendLatestImage(toAddress):
     password = CONFIG.get("email","password")
 
     msg = MIMEMultipart()
-    msg['Subject'] = path
+    subject = path+" at "+time.strftime("%Y-%m-%d %H:%M:%S")
+    msg['Subject'] = subject
     msg['From'] = fromAddress
     msg['To'] = toAddress
 
@@ -53,6 +55,9 @@ def sendLatestImage(toAddress):
     img = MIMEImage(fp.read())
     fp.close()
     msg.attach(img)
+
+    text = MIMEText(subject)
+    msg.attach(text)
 
     s = smtplib.SMTP(getConfig("smtp_server","relay.plus.net"))
     # s.starttls()
