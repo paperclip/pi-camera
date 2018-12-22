@@ -2,3 +2,4 @@
 *.pyc
 not_cat
 cat
+emailClient.config
