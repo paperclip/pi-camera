@@ -60,10 +60,7 @@ def sendLatestImage(toAddress):
     s.quit()
 
     print("SEND LATEST IMAGE",path,"to",toAddress,"from",fromAddress,str(ret))
-
-    # return True
-
-    return False
+    return True
 
 ALLOWED_EMAIL = None
 
@@ -120,6 +117,7 @@ def oneCheck():
         lines = pop.retr(i+1)[1]
         delete = handleEmail(lines)
         if delete:
+            print("DELETE",i+1)
             pop.dele(i+1)
 
     pop.quit()
