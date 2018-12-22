@@ -65,10 +65,10 @@ def sendLatestImage(toAddress):
 
     return False
 
+ALLOWED_EMAIL = None
+
 def whitelistAddress(addr):
-    if addr.endswith("<douglas.leeder@gmail.com>"):
-        return True
-    if addr in ("douglas.leeder@gmail.com"):
+    if addr in ALLOWED_EMAIL:
         return True
     return False
 
@@ -100,12 +100,14 @@ def handleEmail(text):
 
     return False
 
-def main(argv):
+def oneCheck():
     global CONFIG
     CONFIG = ConfigParser.SafeConfigParser()
     CONFIG.read("emailClient.config")
     user = CONFIG.get("email","user")
     password = CONFIG.get("email","password")
+    global ALLOWED_EMAIL
+    ALLOWED_EMAIL = CONFIG.get("email","approvedEmail").split(",")
     print("user:",user)
     pop = poplib.POP3(CONFIG.get("email","pop3_server"))
     pop.set_debuglevel(1)
@@ -121,8 +123,10 @@ def main(argv):
             pop.dele(i+1)
 
     pop.quit()
-
     return 0
+
+def main(argv):
+    return oneCheck()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
