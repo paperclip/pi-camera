@@ -13,6 +13,7 @@ import re
 import smtplib
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+import time
 
 
 CONFIG=None
@@ -124,7 +125,13 @@ def oneCheck():
     return 0
 
 def main(argv):
-    return oneCheck()
+    if "-1" in argv:
+        return oneCheck()
+    while True:
+        oneCheck()
+        time.sleep(60)
+    return 0
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
