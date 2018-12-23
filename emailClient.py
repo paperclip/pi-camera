@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
 import poplib
 import ConfigParser
 import sys
@@ -18,10 +19,11 @@ import time
 
 
 CONFIG=None
+CONFIG_SECTION= os.environ.get("CONFIG_SECTION","email")
 
 def getConfig(option, defaultValue):
     try:
-        return CONFIG.get("email",option)
+        return CONFIG.get(CONFIG_SECTION,option)
     except ConfigParser.NoOptionError:
         return defaultValue
 
@@ -42,8 +44,8 @@ def getLatestImagePath():
 def sendLatestImage(toAddress):
     path = getLatestImagePath()
     fromAddress = getConfig("email","camera@leeder.plus.com")
-    user = CONFIG.get("email","user")
-    password = CONFIG.get("email","password")
+    user = CONFIG.get(CONFIG_SECTION,"user")
+    password = CONFIG.get(CONFIG_SECTION,"password")
 
     msg = MIMEMultipart()
     subject = path+" at "+time.strftime("%Y-%m-%d %H:%M:%S")
@@ -125,12 +127,12 @@ def oneCheck():
     global CONFIG
     CONFIG = ConfigParser.SafeConfigParser()
     CONFIG.read("emailClient.config")
-    user = CONFIG.get("email","user")
-    password = CONFIG.get("email","password")
+    user = CONFIG.get(CONFIG_SECTION,"user")
+    password = CONFIG.get(CONFIG_SECTION,"password")
     global ALLOWED_EMAIL
-    ALLOWED_EMAIL = CONFIG.get("email","approvedEmail").split(",")
+    ALLOWED_EMAIL = CONFIG.get(CONFIG_SECTION,"approvedEmail").split(",")
     print("user:",user)
-    pop = poplib.POP3(CONFIG.get("email","pop3_server"))
+    pop = poplib.POP3(CONFIG.get(CONFIG_SECTION,"pop3_server"))
     pop.set_debuglevel(1)
     print(pop.getwelcome())
     pop.user(user)
@@ -148,7 +150,17 @@ def oneCheck():
     return 0
 
 def main(argv):
-    if "-1" in argv:
+    global CONFIG_SECTION
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-1",dest="one", help="Run only one time",
+        action="store_true")
+    parser.add_argument("--section", help="Config section to use",default=CONFIG_SECTION)
+
+    args = parser.parse_args(argv[1:])
+
+    CONFIG_SECTION=args.section
+    if args.one:
         return oneCheck()
     while True:
         oneCheck()
