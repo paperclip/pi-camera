@@ -82,6 +82,24 @@ def extractEmail(addr):
         return addr
     return mo.group(1)
 
+def isLatest(e):
+    payload = e.get_payload()
+    subject = e.get("Subject")
+
+    if "latest" in subject.lower():
+        return True
+
+    if isinstance(payload,list):
+        for p in payload:
+            if isLatest(p):
+                return True
+    else:
+        if "latest" in payload.lower():
+            return True
+
+    return False
+
+
 def handleEmail(text):
     text = "\n".join(text)
     e = email.message_from_string(text)
@@ -93,7 +111,7 @@ def handleEmail(text):
         return True
 
     payload = e.get_payload()
-    if "latest" in payload:
+    if isLatest(e):
         return sendLatestImage(fromAddress)
     else:
         print("Failed to understand command:",repr(payload))
