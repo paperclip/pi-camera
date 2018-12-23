@@ -46,6 +46,9 @@ def sendLatestImage(toAddress):
     fromAddress = getConfig("email","camera@leeder.plus.com")
     user = CONFIG.get(CONFIG_SECTION,"user")
     password = CONFIG.get(CONFIG_SECTION,"password")
+    ssl = bool(getConfig("smtp_ssl",False))
+    port = int(getConfig("smtp_port",25))
+    host = getConfig("smtp_server","relay.plus.net")
 
     msg = MIMEMultipart()
     subject = path+" at "+time.strftime("%Y-%m-%d %H:%M:%S")
@@ -61,8 +64,10 @@ def sendLatestImage(toAddress):
     text = MIMEText(subject)
     msg.attach(text)
 
-    s = smtplib.SMTP(getConfig("smtp_server","relay.plus.net"))
-    # s.starttls()
+    s = smtplib.SMTP(host,port=port)
+    if ssl:
+        s.starttls()
+
     s.login(user, password)
     ret = s.sendmail(fromAddress, [toAddress], msg.as_string())
     s.quit()
@@ -131,8 +136,18 @@ def oneCheck():
     password = CONFIG.get(CONFIG_SECTION,"password")
     global ALLOWED_EMAIL
     ALLOWED_EMAIL = CONFIG.get(CONFIG_SECTION,"approvedEmail").split(",")
+
+    ssl = bool(getConfig("pop3_ssl",False))
+    port = int(getConfig("pop3_port",110))
+    server = getConfig("pop3_server","mail.plus.net")
+
     print("user:",user)
-    pop = poplib.POP3(CONFIG.get(CONFIG_SECTION,"pop3_server"))
+
+    if ssl:
+        pop = poplib.POP3_SSL(server,port)
+    else:
+        pop = poplib.POP3(server,port)
+
     pop.set_debuglevel(1)
     print(pop.getwelcome())
     pop.user(user)
