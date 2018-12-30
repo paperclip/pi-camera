@@ -164,6 +164,16 @@ def oneCheck():
     pop.quit()
     return 0
 
+def multiCheck():
+    while True:
+        try:
+            oneCheck()
+        except Exception as e:
+            print(e)
+        time.sleep(60)
+    return 0
+
+
 def main(argv):
     global CONFIG_SECTION
     parser = argparse.ArgumentParser()
@@ -177,10 +187,8 @@ def main(argv):
     CONFIG_SECTION=args.section
     if args.one:
         return oneCheck()
-    while True:
-        oneCheck()
-        time.sleep(60)
-    return 0
+
+    return multiCheck()
 
 
 if __name__ == '__main__':
