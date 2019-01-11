@@ -25,7 +25,8 @@ MAX_SLEEP_TIME = 45.0
 
 def main(argv):
     dest = argv[1]
-    with cv2.VideoCapture(0) as camera:
+    camera = cv2.VideoCapture(0)
+    try:
         #camera.iso= 800
         while True:
             start = time.time()
@@ -36,6 +37,8 @@ def main(argv):
             sleeptime = max(0,sleeptime)
             print("Sleeping for %f seconds"%sleeptime)
             time.sleep(sleeptime)
+    finally:
+        del(camera)
 
     return 0
 
