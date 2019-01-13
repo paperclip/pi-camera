@@ -38,8 +38,8 @@ def main(argv):
             print("Sleeping for %f seconds"%sleeptime)
             time.sleep(sleeptime)
     finally:
-        del(camera)
-
+        camera.release()
+        
     return 0
 
 sys.exit(main(sys.argv))
