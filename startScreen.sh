@@ -14,4 +14,4 @@ NL=$(echo -ne '\015')
 screen -S "$SESSION_NAME" -X screen 1
 screen -S "$SESSION_NAME" -p 1 -X stuff "python timelapse.py ~/webdata/camera$NL"
 screen -S "$SESSION_NAME" -X screen 2
-screen -S "$SESSION_NAME" -p 2 -X stuff "python emailClient.py$NL"
+screen -S "$SESSION_NAME" -p 2 -X stuff "python emailClient.py --section google$NL"
