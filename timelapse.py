@@ -6,6 +6,9 @@ import subprocess
 import os
 import datetime
 import picamera
+import logging
+logger = logging.getLogger("timelapse")
+logging.basicConfig(filename="timelapse.log", level=logging.DEBUG)
 
 MAX_PHOTOS = 10000
 
@@ -59,18 +62,21 @@ def oneLoop(camera):
     global recentPhotos
     camera.annotate_background = picamera.Color('black')
     camera.annotate_text = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     destname = time.strftime("timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
     print("Taking %s"%destname)
     d = os.path.join(dest,destname)
     camera.capture(d)
-    
+
     ## Throw away the picture if smaller than 70KiB - it'll be all black
     statbuf = os.stat(d)
-    if statbuf.st_size < 70*1024:
-        print("Picture too small - night time")
+    size = statbuf.st_size
+    if size < 70*1024:
+        print("Picture %s too small - night time"%(destname))
         os.unlink(d)
-    else:    
+    else:
+        print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contract))
+        logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contract))
         recentPhotos.append(d)
 
         if TIME_LAPSE_GIFS:
@@ -91,11 +97,11 @@ def oneLoop(camera):
 
         ## Tidy timelapse files
         cleanUpTimelapseFiles()
-        
+
         count += 1
 
 MAX_SLEEP_TIME = 120
-    
+
 def main():
     with picamera.PiCamera(resolution=(640,480)) as camera:
         #camera.iso= 800
@@ -108,7 +114,7 @@ def main():
             sleeptime = max(0,sleeptime)
             print("Sleeping for %d seconds"%sleeptime)
             time.sleep(sleeptime)
-            
+
     return 0
 
 sys.exit(main())
