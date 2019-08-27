@@ -75,8 +75,8 @@ def oneLoop(camera):
         print("Picture %s too small - night time"%(destname))
         os.unlink(d)
     else:
-        print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contract))
-        logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contract))
+        print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
+        logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
         recentPhotos.append(d)
 
         if TIME_LAPSE_GIFS:
