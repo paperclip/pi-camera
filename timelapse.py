@@ -71,34 +71,42 @@ def oneLoop(camera):
     ## Throw away the picture if smaller than 70KiB - it'll be all black
     statbuf = os.stat(d)
     size = statbuf.st_size
-    if size < 70*1024:
-        print("Picture %s too small - night time"%(destname))
+    print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
+    logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
+    if size < 80*1024:
+        logger.warning("Picture %s too small - night time"%(destname))
         os.unlink(d)
-    else:
-        print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
-        logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
-        recentPhotos.append(d)
+        return
+    elif size > 390*1024:
+        now = time.localtime()
+        if now.tm_hour < 6 or now.tm_hour >= 21:
+            logger.warning("Picture %s too large - night time with random date"%(destname))
+            os.unlink(d)
+            return
 
-        if TIME_LAPSE_GIFS:
-            if len(recentPhotos) % 3 == 0:
-                convert(10,"Last10.gif")
+    recentPhotos.append(d)
 
-            if len(recentPhotos) % 20 == 0:
-                convert(100,"Last100.gif")
+    if TIME_LAPSE_GIFS:
+        if len(recentPhotos) % 3 == 0:
+            convert(10,"Last10.gif")
 
-            ## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
-            if count % 200 == 190:
-                convert(500,"Last500.gif")
-            else:
-                print(count % 200)
+        if len(recentPhotos) % 20 == 0:
+            convert(100,"Last100.gif")
 
-        ## Tidy temp files
-        cleanUpTempFiles()
-
-        ## Tidy timelapse files
-        cleanUpTimelapseFiles()
+        ## We won't every have MOD 200 == 0 since we bounce between 1501 -> 1401
+        if count % 200 == 190:
+            convert(500,"Last500.gif")
+        else:
+            print(count % 200)
 
         count += 1
+
+    ## Tidy temp files
+    cleanUpTempFiles()
+
+    ## Tidy timelapse files
+    cleanUpTimelapseFiles()
+
 
 MAX_SLEEP_TIME = 120
 
