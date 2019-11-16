@@ -73,13 +73,13 @@ def oneLoop(camera):
     size = statbuf.st_size
     print("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
     logger.info("Picture %s size: %d: brightness=%d, contrast=%d"%(destname, size, camera.brightness, camera.contrast))
-    if size < 80*1024:
+    if size < 105*1024:
         logger.warning("Picture %s too small - night time"%(destname))
         os.unlink(d)
         return
     elif size > 390*1024:
         now = time.localtime()
-        if now.tm_hour < 6 or now.tm_hour >= 21:
+        if now.tm_hour < 7 or now.tm_hour >= 20:
             logger.warning("Picture %s too large - night time with random date"%(destname))
             os.unlink(d)
             return
