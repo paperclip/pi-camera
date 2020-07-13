@@ -13,6 +13,7 @@ import email
 import os
 import re
 import smtplib
+import traceback
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -92,8 +93,9 @@ def generate_subjects(e):
                 yield s
 
 def get_time_from_subject(e):
+    time_RE = re.compile(r"(\d{2}:\d{2})")
     for s in generate_subjects(e):
-        mo = re.search(r"(\d{2}:\d{2})")
+        mo = time_RE.search(s)
         if mo:
             return mo.group(1)
 
@@ -108,9 +110,10 @@ def get_best_matching_photo_path(time_val):
 
     # timelapse-2020-07-13-19-54-29.jpeg
 
+    target = datetime.datetime.strptime(time_val, "%H:%M")
     now = datetime.datetime.now()
-    today_date_time = datetime.datetime.strptime(timeval, "%H:%M")
-    yesterday_date_time = today_date_time - timedate.timedelta(days=1)
+    today_date_time = now.replace(hour=target.hour, minute=target.minute)
+    yesterday_date_time = today_date_time - datetime.timedelta(days=1)
 
     if now > today_date_time:
         target = today_date_time
@@ -118,14 +121,15 @@ def get_best_matching_photo_path(time_val):
         target = yesterday_date_time
 
     best_match = None
-    smallest_diff = timedate.timedelta(days=10)
+    smallest_diff = datetime.timedelta(days=10)
+    zero_diff = datetime.timedelta(days=0)
     for n in contents:
         file_date_time = datetime.datetime.strptime(n, "timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
         diff = file_date_time - target
         if abs(diff) < smallest_diff:
             smallest_diff = abs(diff)
             best_match = n
-        elif diff < 0:
+        elif diff < zero_diff:
             break
 
     return os.path.join(photoDir, best_match)
@@ -161,7 +165,7 @@ def isLatest(e):
     payload = e.get_payload()
     subject = e.get("Subject")
 
-    if "latest" in subject.lower():
+    if subject is not None and "latest" in subject.lower():
         return True
 
     if isinstance(payload,list):
@@ -247,6 +251,7 @@ def multiCheck():
             oneCheck()
         except Exception as e:
             print(e)
+            traceback.print_exc()
         time.sleep(60)
     return 0
 
