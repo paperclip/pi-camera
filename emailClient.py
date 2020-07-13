@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import datetime
 import poplib
 import ConfigParser
 import sys
@@ -19,7 +20,7 @@ import time
 
 
 CONFIG=None
-CONFIG_SECTION= os.environ.get("CONFIG_SECTION","email")
+CONFIG_SECTION= os.environ.get("CONFIG_SECTION","google")
 
 def getConfig(option, defaultValue):
     try:
@@ -41,14 +42,14 @@ def getLatestImagePath():
     contents.sort()
     return os.path.join(photoDir,contents[-1])
 
-def sendLatestImage(toAddress):
-    path = getLatestImagePath()
-    fromAddress = getConfig("email","camera@leeder.plus.com")
-    user = CONFIG.get(CONFIG_SECTION,"user")
-    password = CONFIG.get(CONFIG_SECTION,"password")
-    ssl = bool(getConfig("smtp_ssl",False))
-    port = int(getConfig("smtp_port",25))
-    host = getConfig("smtp_server","relay.plus.net")
+
+def sendImage(toAddress, path):
+    fromAddress = getConfig("email", "camera@leeder.plus.com")
+    user = CONFIG.get(CONFIG_SECTION, "user")
+    password = CONFIG.get(CONFIG_SECTION, "password")
+    ssl = bool(getConfig("smtp_ssl", False))
+    port = int(getConfig("smtp_port", 25))
+    host = getConfig("smtp_server", "relay.plus.net")
 
     msg = MIMEMultipart()
     subject = path+" at "+time.strftime("%Y-%m-%d %H:%M:%S")
@@ -64,16 +65,83 @@ def sendLatestImage(toAddress):
     text = MIMEText(subject)
     msg.attach(text)
 
-    s = smtplib.SMTP(host,port=port)
+    s = smtplib.SMTP(host, port=port)
     if ssl:
         s.starttls()
 
     s.login(user, password)
     ret = s.sendmail(fromAddress, [toAddress], msg.as_string())
     s.quit()
+    return ret
 
+def sendLatestImage(toAddress):
+    path = getLatestImagePath()
+    fromAddress = getConfig("email", "camera@leeder.plus.com")
+
+    ret = sendImage(toAddress, path)
     print("SEND LATEST IMAGE",path,"to",toAddress,"from",fromAddress,str(ret))
     return True
+
+
+def generate_subjects(e):
+    yield e.get("Subject")
+    payload = e.get_payload()
+    if isinstance(payload, list):
+        for p in payload:
+            for s in generate_subjects(p):
+                yield s
+
+def get_time_from_subject(e):
+    for s in generate_subjects(e):
+        mo = re.search(r"(\d{2}:\d{2})")
+        if mo:
+            return mo.group(1)
+
+    return None
+
+
+def get_best_matching_photo_path(time_val):
+    photoDir = getPhotoDir()
+    contents = os.listdir(photoDir)
+    contents.sort()
+    contents.reverse()
+
+    # timelapse-2020-07-13-19-54-29.jpeg
+
+    now = datetime.datetime.now()
+    today_date_time = datetime.datetime.strptime(timeval, "%H:%M")
+    yesterday_date_time = today_date_time - timedate.timedelta(days=1)
+
+    if now > today_date_time:
+        target = today_date_time
+    else:
+        target = yesterday_date_time
+
+    best_match = None
+    smallest_diff = timedate.timedelta(days=10)
+    for n in contents:
+        file_date_time = datetime.datetime.strptime(n, "timelapse-%Y-%m-%d-%H-%M-%S.jpeg")
+        diff = file_date_time - target
+        if abs(diff) < smallest_diff:
+            smallest_diff = abs(diff)
+            best_match = n
+        elif diff < 0:
+            break
+
+    return os.path.join(photoDir, best_match)
+
+
+def sendTimedImage(e, toAddress):
+    fromAddress = getConfig("email", "camera@leeder.plus.com")
+    
+    time_val = get_time_from_subject(e)
+    path = get_best_matching_photo_path(time_val)
+
+    ret = sendImage(toAddress, path)
+    print("SEND TIME IMAGE", path, "to",
+          toAddress, "from", fromAddress, str(ret))
+    return True
+
 
 ALLOWED_EMAIL = None
 
@@ -107,6 +175,13 @@ def isLatest(e):
     return False
 
 
+def isTime(e):
+    for s in generate_subjects(e):
+        if ":" in s:
+            return True
+    return False
+
+
 def handleEmail(text):
     text = "\n".join(text)
     e = email.message_from_string(text)
@@ -120,6 +195,8 @@ def handleEmail(text):
     payload = e.get_payload()
     if isLatest(e):
         return sendLatestImage(fromAddress)
+    elif isTime(e):
+        return sendTimedImage(e, fromAddress)
     else:
         print("Failed to understand command:",repr(payload))
         for part in e.walk():
