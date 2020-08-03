@@ -1,7 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 START_DIR=${0%/*}
 [[ -d $START_DIR ]] && cd ${START_DIR}
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+export SHELL=/bin/bash
 
 SESSION_NAME=camera
 screen -S "$SESSION_NAME" -d -m -U -A 
